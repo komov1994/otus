@@ -1,0 +1,200 @@
+openapi: 3.0.3
+
+info:
+  title: Secret Safe
+  version: 1.0.0
+servers:
+  - url: https://secret.swagger.io/api/v1
+
+paths:
+  /secret:
+    post:
+      tags:
+        - Secret
+      operationId: CreateSecret
+      summary: Создать секрет
+      requestBody:
+        content:
+          application/json:
+            schema:
+              allOf:
+              - $ref: '#/components/schemas/metaData'
+              - $ref: '#/components/schemas/sensitiveData'
+        required: true
+      responses:
+        201:
+          description: Created
+          content:
+            secretId:
+              example: 30144958-8ebc-464c-8108-7d317d1882a9
+        400:
+          description: Bad Request
+        401:
+          description: Unauthorized
+        403:
+          description: Forbidden  
+
+    get:
+      tags:
+      - Secret
+      operationId: ReadSecret
+      summary: Получить секрет
+      parameters:
+        - name: secretId
+          in: query
+          description: Идентификатор секрета
+          required: true
+          schema:
+            type: string
+            example: 30144958-8ebc-464c-8108-7d317d1882a9 
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/secretData'
+        401:
+          description: Unauthorized
+        403:
+          description: Forbidden    
+        404:
+         description: Not found  
+
+    put:
+      tags:
+        - Secret
+      operationId: UpdateSecret
+      summary: Обновить секрет
+      description: Update an existing pet by Id
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/secretData'
+        required: true
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/secretData'          
+        400:
+          description: Bad Request
+        401:
+          description: Unauthorized
+        403:
+          description: Forbidden    
+        404:
+         description: Not found  
+
+    delete:
+      tags:
+      - Secret
+      operationId: DeleteSecret
+      summary: Удалить секрет
+      parameters:
+        - name: secretId
+          in: query
+          description: Идентификатор секрета
+          required: true
+          schema:
+            type: string
+            example: 30144958-8ebc-464c-8108-7d317d1882a9 
+      responses:
+        200:
+          description: OK
+        401:
+          description: Unauthorized
+        403:
+          description: Forbidden    
+        404:
+         description: Not found
+         
+  /secrets:
+    get:
+      tags:
+      - Secrets
+      summary: Получить информацию обо всех доступных секретах
+      operationId: GetSecrets
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+                schema:
+                  $ref: '#/components/schemas/secretData'    
+        400:
+          description: Bad Request
+        401:
+          description: Unauthorized
+        403:
+          description: Forbidden    
+        404:
+         description: Not found  
+        
+components:
+  schemas:
+    
+    secretData:
+      type: object
+      required:
+        - secretId      
+      properties:
+        secretId:
+          description: Идентификатор секрета
+          type: string
+          format: guid
+          example: 30144958-8ebc-464c-8108-7d317d1882a9          
+        metaData:
+            allOf:
+            - $ref: '#/components/schemas/metaData'
+            description: Метаданные секрета
+            nullable: true
+        sensitiveData:
+            allOf:
+            - $ref: '#/components/schemas/sensitiveData'
+            description: Чувствительные данные секрета
+            nullable: true
+
+    metaData:
+      required: 
+        - name
+        - secretType
+      type: object
+      properties:
+        name:
+          description: Имя секрета
+          type: string
+          example: testCertificate
+        description:
+          description: Описание секрета
+          type: string
+          example: Тестовый сертификат
+        secretType:
+          description: Тип секрета
+          type: string
+          example: Certificate
+        additionalProperty:
+            type: object
+            properties: {}
+        
+    
+  
+    sensitiveData:
+      type: object
+      properties:
+        login:
+          description: Логин для работы с сертификатом
+          type: string
+          example: Admin      
+        password:
+          description: Пароль для работы с сертификатом
+          type: string
+          example: Passwodr
+        certificate:
+          description: Тело сертификата
+          type: string
+          example: MIIC3zCCAccCAQAwgZkxCzAJBgNVBAYTAlVBMQ0wCwYDVQQIEwRLaWV2MQ0wCwYDVQQHEwRLaWV2MRQwEgYDVQQKEwtIb3N0QXV0b21hdDEQMA4GA1UECxMHaG9zdGluZzEmMCQGCSqGSIb3DQEJARYXc3VwcG9ydEBob3N0YXV0b21hdC5jb20xHDAaBgNVBAMTE3d3dy5ob3N0YXV0b21hdC5jb20wggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAw   
+        
